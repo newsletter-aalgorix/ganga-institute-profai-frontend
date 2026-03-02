@@ -68,7 +68,7 @@ function shouldSkipSiteLogin(pathname: string) {
   ) {
     return true;
   }
-  if (pathname === "/AISECT-logo.png") return true;
+  if (pathname === "/gitam-logo.png") return true;
   if (
     pathname.startsWith("/assets/") ||
     pathname.startsWith("/@vite") ||

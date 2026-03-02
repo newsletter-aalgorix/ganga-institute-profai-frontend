@@ -221,7 +221,7 @@ export default function PostAuthPage(): JSX.Element {
                   <span className="w-full border-t border-white/20" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-transparent px-2 text-white/70">New to AISECT Learn?</span>
+                  <span className="bg-transparent px-2 text-white/70">New to GITAM Learn?</span>
                 </div>
               </div>
 

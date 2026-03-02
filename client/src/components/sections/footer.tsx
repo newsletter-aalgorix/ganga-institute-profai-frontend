@@ -39,9 +39,9 @@ export default function Footer() {
           <div data-testid="footer-brand">
             {/* Co-branded Logos */}
             <div className="mb-6 flex flex-row items-center gap-x-5 ">
-              {/* AISECT Logo */}
+              {/* GITAM Logo */}
               <a 
-                href="https://aisectlearn.com/" 
+                href="https://www.gangainstitute.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-block mb-4"

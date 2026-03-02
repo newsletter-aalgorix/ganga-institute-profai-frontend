@@ -104,9 +104,9 @@ export default function Navigation() {
         <div className="flex justify-between items-center py-1.5 px-4 sm:py-1.5 bg-black/90 rounded-full">
           {/* Co-branded Logo Section */}
           <div className="flex items-center gap-3" data-testid="logo-brand">
-            {/* AISECT University Logo (Primary) - Links to AISECT website */}
+            {/* Ganga Institute Logo (Primary) - Links to GITAM website */}
             <a 
-              href="https://aisectlearn.com/" 
+              href="https://www.gangainstitute.com/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="cursor-pointer"

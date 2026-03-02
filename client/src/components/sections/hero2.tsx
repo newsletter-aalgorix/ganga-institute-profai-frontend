@@ -20,7 +20,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section id="home" className="relative overflow-hidden bg-black py-8 sm:py-12 lg:py-16" data-testid="hero-section">
+    <section id="home" className="relative overflow-hidden bg-zinc-900 py-8 sm:py-12 lg:py-16" data-testid="hero-section">
       <div className="relative flex flex-col lg:flex-row items-center justify-between">
         
         {/* LEFT HALF - Text Content */}
