@@ -55,6 +55,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: ["gangainstitute.professorsai.org"],
     fs: {
       strict: true,
       deny: ["**/.*"],
@@ -68,6 +69,9 @@ export default defineConfig({
         secure: false,
       },
     },
+  },
+  preview: {
+    allowedHosts: ["gangainstitute.professorsai.org"],
   },
   // Vite automatically loads VITE_* variables from .env files
   // No need to manually define them - they're available via import.meta.env
