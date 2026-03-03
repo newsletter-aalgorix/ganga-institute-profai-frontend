@@ -114,7 +114,6 @@ type SessionResp = {
 
 export function AuthNavbar() {
   const [session, setSession] = useState<SessionResp | null>(null);
-  const [siteAuth, setSiteAuth] = useState<null | { enabled: boolean; authenticated: boolean }>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,33 +130,6 @@ export function AuthNavbar() {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/site-auth/status', { credentials: 'include' });
-        const data = await res.json();
-        if (!cancelled && res.ok && typeof data?.enabled === 'boolean') {
-          setSiteAuth({ enabled: data.enabled, authenticated: data.authenticated === true });
-        }
-      } catch {
-        // ignore
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const handleRestrictedLogout = async () => {
-    try {
-      await fetch('/api/site-auth/logout', { method: 'POST', credentials: 'include' });
-    } finally {
-      sessionStorage.removeItem('siteLoginRedirect');
-      window.location.href = '/login';
-    }
-  };
 
   const initialsOf = (name?: string) => {
     if (!name) return "?";
@@ -215,19 +187,6 @@ export function AuthNavbar() {
                   </div>
                   {session.additionalInfo?.phone && (
                     <div><span className="opacity-70">Phone:</span> {session.additionalInfo.phone}</div>
-                  )}
-
-                  {siteAuth?.enabled && siteAuth.authenticated && (
-                    <div className="mt-3">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                        onClick={handleRestrictedLogout}
-                      >
-                        Restricted Logout
-                      </Button>
-                    </div>
                   )}
 
                   {/* Logout button inside hover card */}

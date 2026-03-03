@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Sparkles, ChevronDown, LogOut } from 'lucide-react';
+import { Menu, X, Sparkles, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Link } from 'wouter';
@@ -18,7 +18,6 @@ export default function Navigation() {
   const [currentSection, setCurrentSection] = useState('home');
   const [isSignInDropdownOpen, setIsSignInDropdownOpen] = useState(false);
   const [sessionUser, setSessionUser] = useState<null | { username?: string; email?: string }>(null);
-  const [siteAuth, setSiteAuth] = useState<null | { enabled: boolean; authenticated: boolean }>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,33 +57,6 @@ export default function Navigation() {
     })();
     return () => { cancelled = true; };
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/site-auth/status', { credentials: 'include' });
-        const data = await res.json();
-        if (!cancelled && res.ok && typeof data?.enabled === 'boolean') {
-          setSiteAuth({ enabled: data.enabled, authenticated: data.authenticated === true });
-        }
-      } catch {
-        // ignore
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const handleRestrictedLogout = async () => {
-    try {
-      await fetch('/api/site-auth/logout', { method: 'POST', credentials: 'include' });
-    } finally {
-      sessionStorage.removeItem('siteLoginRedirect');
-      window.location.href = '/login';
-    }
-  };
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -278,19 +250,6 @@ export default function Navigation() {
               </Link>
             )}
 
-            {siteAuth?.enabled && siteAuth.authenticated && (
-              <Button
-                size="icon"
-                variant="outline"
-                className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/30 transition-all"
-                onClick={handleRestrictedLogout}
-                aria-label="Admin logout"
-                title="Admin logout"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            )}
-            
             {/* Account (if signed in) or Sign In */}
             {sessionUser ? (
               <HoverCard>
@@ -391,17 +350,6 @@ export default function Navigation() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden rounded-lg mt-2 p-4 bg-black/90 backdrop-blur-md shadow-lg transition-all" data-testid="mobile-menu">
-            {siteAuth?.enabled && siteAuth.authenticated && (
-              <div className="mb-3">
-                <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={handleRestrictedLogout}
-                >
-                  Restricted Logout
-                </Button>
-              </div>
-            )}
             {/* Mobile Teach Link */}
             <Link href="/teach">
               <button className={`block py-2 ${textColor} ${hoverColor} transition-colors w-full text-left border-b border-white/20 pb-2 mb-2`}>

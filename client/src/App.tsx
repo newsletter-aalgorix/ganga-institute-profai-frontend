@@ -39,7 +39,6 @@ const SuggestionsPage = lazy(() => import("@/pages/suggestions"));
 const ComparisonPage = lazy(() => import("@/pages/comparison"));
 const EducationSuitePage = lazy(() => import("@/pages/products-api"));
 const AboutPage = lazy(() => import("@/pages/about"));
-const SiteLogin = lazy(() => import("@/pages/site-login"));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -51,40 +50,20 @@ const PageLoader = () => (
   </div>
 );
 
-function SiteLoginGate({ children }: { children: React.ReactNode }) {
-  const [location, setLocation] = useLocation();
+function LoginRedirect() {
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/site-auth/status', { credentials: 'include' });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled) return;
+    setLocation("/signin/student");
+  }, [setLocation]);
 
-        if (data?.enabled === true && data?.authenticated !== true) {
-          if (location !== '/login') {
-            sessionStorage.setItem('siteLoginRedirect', location);
-            setLocation('/login');
-          }
-        }
-      } catch {
-        // ignore
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [location, setLocation]);
-
-  return <>{children}</>;
+  return null;
 }
 
 function Router() {
   return (
     <Switch>
-      <Route path="/login" component={SiteLogin} />
+      <Route path="/login" component={LoginRedirect} />
       <Route path="/" component={Home}/>
       <Route path="/signup" component={Signup } />
       <Route path="/terms" component={TermsPage} />
@@ -127,9 +106,7 @@ function App() {
           <SetPasswordModal />
           <IndiaAIPopup />
           <Suspense fallback={<PageLoader />}>
-            <SiteLoginGate>
-              <Router />
-            </SiteLoginGate>
+            <Router />
           </Suspense>
         </TooltipProvider>
       </AuthProvider>
@@ -138,4 +115,3 @@ function App() {
 }
 
 export default App;
-
