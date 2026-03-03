@@ -23,24 +23,13 @@ function log(message: string, source = "express") {
   });
   console.log(`${formattedTime} [${source}] ${message}`);
 }
-
+ 
 const app = express();
 
 const basicAuthEnabled = String(process.env.BASIC_AUTH_ENABLED || "").toLowerCase() === "true";
 const basicAuthUser = process.env.BASIC_AUTH_USER;
 const basicAuthPass = process.env.BASIC_AUTH_PASS;
 const basicAuthExcludePaths = String(process.env.BASIC_AUTH_EXCLUDE_PATHS || "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
-
-const nodeEnvLower = String(process.env.NODE_ENV || "").toLowerCase();
-const siteLoginEnabled =
-  String(process.env.SITE_LOGIN_ENABLED || "").toLowerCase() === "true" ||
-  (nodeEnvLower === "production" && String(process.env.SITE_LOGIN_ENABLED || "").toLowerCase() !== "false");
-const siteLoginUser = process.env.SITE_LOGIN_USER || "admin";
-const siteLoginPass = process.env.SITE_LOGIN_PASS || "admin";
-const siteLoginExcludePaths = String(process.env.SITE_LOGIN_EXCLUDE_PATHS || "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
@@ -55,34 +44,6 @@ function safeEqual(a: string, b: string) {
 function shouldSkipBasicAuth(pathname: string) {
   if (basicAuthExcludePaths.length === 0) return false;
   return basicAuthExcludePaths.some((p) => pathname === p || pathname.startsWith(p));
-}
-
-function shouldSkipSiteLogin(pathname: string) {
-  if (pathname === "/login") return true;
-  if (pathname === "/api/site-auth/status" || pathname === "/api/site-auth/login" || pathname === "/api/site-auth/logout") return true;
-  if (
-    pathname === "/favicon.ico" ||
-    pathname === "/robots.txt" ||
-    pathname === "/manifest.webmanifest" ||
-    pathname === "/manifest.json"
-  ) {
-    return true;
-  }
-  if (pathname === "/gitam-logo.png") return true;
-  if (
-    pathname.startsWith("/assets/") ||
-    pathname.startsWith("/@vite") ||
-    pathname.startsWith("/@id/") ||
-    pathname.startsWith("/@react-refresh") ||
-    pathname.startsWith("/node_modules/") ||
-    pathname.startsWith("/__vite_ping") ||
-    pathname.startsWith("/src/") ||
-    pathname.startsWith("/@fs/")
-  ) {
-    return true;
-  }
-  if (siteLoginExcludePaths.length === 0) return false;
-  return siteLoginExcludePaths.some((p) => pathname === p || pathname.startsWith(p));
 }
 
 app.use((req, res, next) => {
@@ -193,59 +154,6 @@ app.use(
     },
   })
 );
-
-app.get("/api/site-auth/status", (req, res) => {
-  if (!siteLoginEnabled) {
-    return res.json({ enabled: false, authenticated: true });
-  }
-  const sess = (req as any).session as any;
-  return res.json({ enabled: true, authenticated: sess?.siteAuthenticated === true });
-});
-
-app.post("/api/site-auth/login", (req, res) => {
-  if (!siteLoginEnabled) {
-    return res.status(400).json({ message: "Site login is disabled" });
-  }
-  const username = String((req.body as any)?.username || "");
-  const password = String((req.body as any)?.password || "");
-  if (!safeEqual(username, siteLoginUser) || !safeEqual(password, siteLoginPass)) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-  const sess = (req as any).session as any;
-  if (sess) {
-    sess.siteAuthenticated = true;
-  }
-  return res.json({ ok: true });
-});
-
-app.post("/api/site-auth/logout", (req, res) => {
-  const sess = (req as any).session as any;
-  if (sess) {
-    sess.siteAuthenticated = false;
-  }
-  return res.json({ ok: true });
-});
-
-app.use((req, res, next) => {
-  if (!siteLoginEnabled) return next();
-  if (req.method === "OPTIONS") return next();
-  if (shouldSkipSiteLogin(req.path)) return next();
-
-  const sess = (req as any).session as any;
-  if (sess?.siteAuthenticated === true) {
-    return next();
-  }
-
-  if (req.path.startsWith("/api")) {
-    return res.status(401).json({ message: "Authentication required" });
-  }
-
-  if (req.method === "GET" || req.method === "HEAD") {
-    return res.redirect("/login");
-  }
-
-  return res.status(401).json({ message: "Authentication required" });
-});
 
 // --- simple logging middleware (keeps your JSON capture) ---
 app.use((req, res, next) => {
